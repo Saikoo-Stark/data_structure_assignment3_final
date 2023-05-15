@@ -217,10 +217,8 @@ void BST::loadfile()
 	fin.close();
 }
 
-void menu()
+void BST::menu()
 {
-	BST Students;
-	Students.loadfile();
 
 	int choice;
 	do
@@ -236,16 +234,16 @@ void menu()
 		switch (choice)
 		{
 		case 1:
-			Students.add();
+			add();
 			break;
 		case 2:
-			Students.deleteStudent();
+			deleteStudent();
 			break;
 		case 3:
-			Students.search();
+			search();
 			break;
 		case 4:
-			Students.print_inorder();
+			print_inorder();
 			break;
 		case 5:
 			break;

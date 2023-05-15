@@ -55,7 +55,6 @@ void Heap::loadData()
 
 	int n;
 	fin >> n;
-	cout << n << endl;
 	for (int i = 0; i < n; i++)
 	{
 		int id = 5;
@@ -78,36 +77,60 @@ void Heap::loadData()
 
 Heap::Heap(int sortval)
 {
-	loadData();
 
 	if (sortval == 1)
 		cmp = &ascCmp;
 	else
 		cmp = &descCmp;
+
+	loadData();
 }
 
 void Heap::insert(int id, string name, float gpa, string dept)
 {
 	Student student = {id, name, gpa, dept};
 	students.push_back(student);
-	// heapSort(students);
+	heapSort(students);
+}
+
+void Heap::add()
+{
+	int id;
+	string name, dept;
+	float gpa;
+	cout << "Enter ID : ";
+	cin >> id;
+	cin.ignore();
+
+	cout << "Enter Name : ";
+	getline(cin, name);
+
+	cout << "Enter GPA : ";
+	cin >> gpa;
+	cin.ignore();
+
+	cout << "Enter Department : ";
+	getline(cin, dept);
+
+	insert(id, name, gpa, dept);
 }
 
 void Heap::print()
 {
-	heapSort(students);
+	cout << "Print " << students.size() << " students\n";
 	for (Student std : students)
 	{
-		cout << "\nid: " << std.id
-			 << "\nname: " << std.name
-			 << "\ngpa: " << std.gpa
-			 << "\ndept: " << std.dept << endl;
+		cout << "[ " << std.id << ", " << std.name << ", " << std.gpa << ", " << std.dept << " ]\n";
+
+		// cout << "\nid: " << std.id
+		// 	 << "\nname: " << std.name
+		// 	 << "\ngpa: " << std.gpa
+		// 	 << "\ndept: " << std.dept << endl;
 	}
 }
 
 void Heap::menu()
 {
-	Heap Students(1);
 
 	int choice;
 	do
@@ -115,23 +138,21 @@ void Heap::menu()
 		cout
 			<< "Choose one of the following options:" << endl
 			<< "1. Add student" << endl
-			<< "2. Remove student" << endl
-			<< "3. Search student" << endl
-			<< "4. Print All (sorted by id)" << endl
-			<< "5. Return to main menu" << endl;
+			<< "2. Print All (sorted by id)" << endl
+			<< "3. Return to main menu" << endl;
 		cin >> choice;
 		switch (choice)
 		{
 		case 1:
-			Students.insert(33, "saikoo", 12.43, "dept");
+			add();
 			break;
-		case 4:
-			Students.print();
+		case 2:
+			print();
 			break;
-		case 5:
+		case 3:
 			break;
 		default:
 			cout << "Enter a valid choice\n";
 		}
-	} while (choice != 5);
+	} while (choice != 3);
 }

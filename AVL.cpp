@@ -1,203 +1,199 @@
-#include <iostream>
+#include "Trees.h"
 using namespace std;
-struct Student
+
+void AVLTree::loadfile()
 {
+	ifstream fin("input.txt");
+	if (!fin)
+	{
+		cout << "Unable to open file.";
+		return;
+	}
 
-	string name;
-	int ID;
-	double GPA;
-	string department;
-	Student *left{};
-	Student *right{};
+	string str;
+	getline(fin, str);
+	int x = stoi(str);
+	for (int i = 0; i < x; ++i)
+	{
 
-	Student(int id, string name, double gpa, string department) : ID(id), name(name), GPA(gpa), department(department) {}
-};
+		int id;
+		string name;
+		double gpa;
+		string dept;
 
-class AVLTree
+		getline(fin, str);
+		id = stoi(str);
+		getline(fin, name);
+		getline(fin, str);
+
+		gpa = stod(str);
+		getline(fin, dept);
+
+		insert_value(Student(id, name, gpa, dept));
+		cardinality[dept]++;
+	}
+	fin.close();
+}
+
+bool AVLTree::search(Student target, AVLTree::BinaryNode *node)
 {
-private:
-	struct BinaryNode
+	if (!node)
+		return false;
+
+	if (target.ID == node->data.ID)
+		return true;
+
+	if (target.ID < node->data.ID)
+		return search(target, node->left);
+
+	return search(target, node->right);
+}
+
+AVLTree::BinaryNode *AVLTree::right_rotation(AVLTree::BinaryNode *Q)
+{
+	AVLTree::BinaryNode *P = Q->left;
+	Q->left = P->right;
+	P->right = Q;
+	Q->update_height();
+	P->update_height();
+	return P;
+}
+
+AVLTree::BinaryNode *AVLTree::left_rotation(AVLTree::BinaryNode *P)
+{
+	AVLTree::BinaryNode *Q = P->right;
+	P->right = Q->left;
+	Q->left = P;
+	P->update_height();
+	Q->update_height();
+	return Q;
+}
+
+AVLTree::BinaryNode *AVLTree::balance(AVLTree::BinaryNode *node)
+{
+	if (node->balance_factor() == 2)
 	{
-		Student data;
-		int height{};
-		BinaryNode *left{};
-		BinaryNode *right{};
+		if (node->left->balance_factor() == -1)
+			node->left = left_rotation(node->left);
 
-		BinaryNode(Student data) : data(data)
-		{
-		}
-
-		int ch_height(BinaryNode *node)
-		{
-			if (!node)
-				return -1;
-			return node->height;
-		}
-
-		int update_height()
-		{
-			return height = 1 + max(ch_height(left), ch_height(right));
-		}
-
-		int balance_factor()
-		{
-			return ch_height(left) - ch_height(right);
-		}
-	};
-
-	BinaryNode *root{};
-
-	bool search(Student target, BinaryNode *node)
-	{
-		if (!node)
-			return false;
-
-		if (target.ID == node->data.ID)
-			return true;
-
-		if (target.ID < node->data.ID)
-			return search(target, node->left);
-
-		return search(target, node->right);
+		node = right_rotation(node);
 	}
-
-	BinaryNode *right_rotation(BinaryNode *Q)
+	else if (node->balance_factor() == -2)
 	{
-		BinaryNode *P = Q->left;
-		Q->left = P->right;
-		P->right = Q;
-		Q->update_height();
-		P->update_height();
-		return P;
+		if (node->right->balance_factor() == 1)
+			node->right = right_rotation(node->right);
+
+		node = left_rotation(node);
 	}
+	return node;
+}
 
-	BinaryNode *left_rotation(BinaryNode *P)
+AVLTree::BinaryNode *AVLTree::insert_node(Student target, AVLTree::BinaryNode *node)
+{
+	if (target.ID < node->data.ID)
 	{
-		BinaryNode *Q = P->right;
-		P->right = Q->left;
-		Q->left = P;
-		P->update_height();
-		Q->update_height();
-		return Q;
+		if (!node->left)
+			node->left = new AVLTree::BinaryNode(target);
+		else
+			node->left = insert_node(target, node->left);
 	}
-
-	BinaryNode *balance(BinaryNode *node)
+	else if (target.ID > node->data.ID)
 	{
-		if (node->balance_factor() == 2)
-		{
-			if (node->left->balance_factor() == -1)
-				node->left = left_rotation(node->left);
-
-			node = right_rotation(node);
-		}
-		else if (node->balance_factor() == -2)
-		{
-			if (node->right->balance_factor() == 1)
-				node->right = right_rotation(node->right);
-
-			node = left_rotation(node);
-		}
-		return node;
+		if (!node->right)
+			node->right = new AVLTree::BinaryNode(target);
+		else
+			node->right = insert_node(target, node->right);
 	}
+	node->update_height();
+	return balance(node);
+}
 
-	BinaryNode *insert_node(Student target, BinaryNode *node)
-	{
-		if (target.ID < node->data.ID)
-		{
-			if (!node->left)
-				node->left = new BinaryNode(target);
-			else
-				node->left = insert_node(target, node->left);
-		}
-		else if (target.ID > node->data.ID)
-		{
-			if (!node->right)
-				node->right = new BinaryNode(target);
-			else
-				node->right = insert_node(target, node->right);
-		}
-		node->update_height();
-		return balance(node);
-	}
+AVLTree::BinaryNode *AVLTree::min_node(AVLTree::BinaryNode *cur)
+{
+	while (cur && cur->left)
+		cur = cur->left;
+	return cur;
+}
 
-	BinaryNode *min_node(BinaryNode *cur)
+AVLTree::BinaryNode *AVLTree::delete_node(int id, AVLTree::BinaryNode *node)
+{
+	if (id < node->data.ID)
+		node->left = delete_node(id, node->left);
+	else if (id > node->data.ID)
+		node->right = delete_node(id, node->right);
+	else
 	{
-		while (cur && cur->left)
-			cur = cur->left;
-		return cur;
-	}
+		AVLTree::BinaryNode *tmp = node;
 
-	BinaryNode *delete_node(int id, BinaryNode *node)
-	{
-		if (id < node->data.ID)
-			node->left = delete_node(id, node->left);
-		else if (id > node->data.ID)
-			node->right = delete_node(id, node->right);
+		if (!node->left && !node->right)
+			node = nullptr;
+		else if (!node->right)
+			node = node->left;
+		else if (!node->left)
+			node = node->right;
 		else
 		{
-			BinaryNode *tmp = node;
-
-			if (!node->left && !node->right)
-				node = nullptr;
-			else if (!node->right)
-				node = node->left;
-			else if (!node->left)
-				node = node->right;
-			else
-			{
-				BinaryNode *mn = min_node(node->right);
-				node->data = mn->data;
-				node->right = delete_node(node->data.ID, node->right);
-				tmp = nullptr;
-			}
-			if (tmp)
-				delete tmp;
+			AVLTree::BinaryNode *mn = min_node(node->right);
+			node->data = mn->data;
+			node->right = delete_node(node->data.ID, node->right);
+			tmp = nullptr;
 		}
-		if (node)
-		{
-			node->update_height();
-			node = balance(node);
-		}
-		return node;
+		if (tmp)
+			delete tmp;
 	}
-	void print_inorder(BinaryNode *node)
+	if (node)
 	{
-		if (!node)
-			return;
+		node->update_height();
+		node = balance(node);
+	}
+	return node;
+}
 
+void AVLTree::print_inorder(AVLTree::BinaryNode *node)
+{
+	if (node)
+	{
 		print_inorder(node->left);
-		cout << node->data.ID << " " << node->data.name << " " << node->data.GPA << " " << node->data.department << endl;
+		cout << "[ " << node->data.ID << ", " << node->data.name << ", " << node->data.GPA << ", "
+			 << node->data.department << " ]\n";
 		print_inorder(node->right);
 	}
+}
 
-public:
-	void insert_value(Student target)
-	{
-		if (!root)
-			root = new BinaryNode(target);
-		else
-			root = insert_node(target, root);
-	}
+void AVLTree::insert_value(Student target)
+{
+	if (!root)
+		root = new AVLTree::BinaryNode(target);
+	else
+		root = insert_node(target, root);
+}
 
-	void delete_value(int id)
+void AVLTree::delete_value(int id)
+{
+	if (root)
 	{
-		if (root)
-		{
-			root = delete_node(id, root);
-		}
+		root = delete_node(id, root);
 	}
-	void print_inorder()
+}
+
+void AVLTree::print_inorder()
+{
+	cout << "Print " << count << " Students.\n";
+	print_inorder(root);
+	cout << "Students per Departments:\n";
+	for (auto &dept : cardinality)
 	{
-		print_inorder(root);
+		cout << dept.first << " " << dept.second << " Students\n";
 	}
-};
+}
+
 int main()
 {
-	Student s1(5, "karim", 3.5, "CS");
-	Student s2(1, "Mostafa", 3.7, "CS");
-	Student s3(3, "Ibrahim", 3.7, "IS");
-	Student s4(11, "Eslam", 3.6, "IS");
-	Student s5(4, "Saiko", 1.2, "DS");
+	Student s1(13, "karim", 3.5, "CS");
+	Student s2(15, "Mostafa", 3.7, "CS");
+	Student s3(20, "Ibrahim", 3.7, "IS");
+	Student s4(14, "Eslam", 3.6, "IS");
+	Student s5(25, "Saiko", 1.2, "DS");
 	AVLTree av;
 	av.insert_value(s1);
 	av.insert_value(s2);
