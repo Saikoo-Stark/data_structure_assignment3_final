@@ -35,18 +35,30 @@ void AVLTree::loadfile()
 	fin.close();
 }
 
-bool AVLTree::search(Student target, AVLTree::BinaryNode *node)
+AVLTree::BinaryNode *AVLTree::search(int id, AVLTree::BinaryNode *node)
 {
 	if (!node)
-		return false;
+		return nullptr;
 
-	if (target.ID == node->data.ID)
-		return true;
+	if (id == node->data.ID)
+		return node;
 
-	if (target.ID < node->data.ID)
-		return search(target, node->left);
+	if (id < node->data.ID)
+		return search(id, node->left);
 
-	return search(target, node->right);
+	return search(id, node->right);
+}
+
+void AVLTree::searchID(int id)
+{
+	if (!search(id, root))
+	{
+		cout << "ID : " << id << " is not found !" << endl;
+	}
+	else
+	{
+		search(id, root)->data.printDetails();
+	}
 }
 
 AVLTree::BinaryNode *AVLTree::right_rotation(AVLTree::BinaryNode *Q)
@@ -123,7 +135,7 @@ AVLTree::BinaryNode *AVLTree::delete_node(int id, AVLTree::BinaryNode *node)
 		node->right = delete_node(id, node->right);
 	else
 	{
-		AVLTree::BinaryNode *tmp = node;
+		BinaryNode *tmp = node;
 
 		if (!node->left && !node->right)
 			node = nullptr;
@@ -133,7 +145,7 @@ AVLTree::BinaryNode *AVLTree::delete_node(int id, AVLTree::BinaryNode *node)
 			node = node->right;
 		else
 		{
-			AVLTree::BinaryNode *mn = min_node(node->right);
+			BinaryNode *mn = min_node(node->right);
 			node->data = mn->data;
 			node->right = delete_node(node->data.ID, node->right);
 			tmp = nullptr;
@@ -166,13 +178,18 @@ void AVLTree::insert_value(Student target)
 		root = new AVLTree::BinaryNode(target);
 	else
 		root = insert_node(target, root);
+	cardinality[target.department]++;
+	count++;
+	cout << "std num " << count << " now dept is" << target.department << " " << cardinality[target.department] << endl;
 }
 
 void AVLTree::delete_value(int id)
 {
 	if (root)
 	{
+		cardinality[search(id, root)->data.department]--;
 		root = delete_node(id, root);
+		count--;
 	}
 }
 
@@ -187,22 +204,70 @@ void AVLTree::print_inorder()
 	}
 }
 
-int main()
+void AVLTree::menu()
 {
-	Student s1(13, "karim", 3.5, "CS");
-	Student s2(15, "Mostafa", 3.7, "CS");
-	Student s3(20, "Ibrahim", 3.7, "IS");
-	Student s4(14, "Eslam", 3.6, "IS");
-	Student s5(25, "Saiko", 1.2, "DS");
-	AVLTree av;
-	av.insert_value(s1);
-	av.insert_value(s2);
-	av.insert_value(s3);
-	av.insert_value(s4);
-	av.insert_value(s5);
+	int choice;
+	do
+	{
+		cout
+			<< "Choose one of the following options:" << endl
+			<< "1. Add student" << endl
+			<< "2. Remove student" << endl
+			<< "3. Search student" << endl
+			<< "4. Print All (sorted by id)" << endl
+			<< "5. Return to main menu" << endl;
+		cin >> choice;
+		switch (choice)
+		{
+		case 1:
+			add();
+			break;
+		case 2:
+			deleteStudent();
+			break;
+		case 3:
+			search();
+			break;
+		case 4:
+			print_inorder();
+			break;
+		case 5:
+			break;
+		default:
+			cout << "Enter a valid choice\n";
+		}
+	} while (choice != 5);
+}
 
-	//    av.print_inorder();
-	av.delete_value(3);
-	av.print_inorder();
-	return 0;
+void AVLTree::add()
+{
+	string name, department;
+	int id;
+	float gpa;
+	cout << "Enter student id :  ";
+	cin >> id;
+	cout << "Enter student name :  ";
+	cin >> name;
+	cout << "Enter student department :  ";
+	cin >> department;
+	cout << "Enter student gpa :  ";
+	cin >> gpa;
+	Student s = Student(id, name, gpa, department);
+	insert_value(s);
+}
+
+void AVLTree::deleteStudent()
+{
+	int id;
+	cout << "please enter student ID to delete";
+	cin >> id;
+	delete_value(id);
+}
+
+void AVLTree::search()
+{
+	int id;
+	cout << "please enter student ID to delete";
+	cin >> id;
+	searchID(id);
 }
