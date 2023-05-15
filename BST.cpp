@@ -1,4 +1,4 @@
-#include "BST.h"
+#include "Trees.h"
 
 void BST::search()
 {
@@ -190,7 +190,7 @@ void BST::loadfile()
 		cout << "Unable to open file.";
 		return;
 	}
-	
+
 	string str;
 	getline(fin, str);
 	int x = stoi(str);

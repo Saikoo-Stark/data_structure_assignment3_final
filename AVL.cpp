@@ -1,17 +1,29 @@
 #include <iostream>
 using namespace std;
+struct Student
+{
+
+	string name;
+	int ID;
+	double GPA;
+	string department;
+	Student *left{};
+	Student *right{};
+
+	Student(int id, string name, double gpa, string department) : ID(id), name(name), GPA(gpa), department(department) {}
+};
 
 class AVLTree
 {
 private:
 	struct BinaryNode
 	{
-		int data{};
+		Student data;
 		int height{};
 		BinaryNode *left{};
 		BinaryNode *right{};
 
-		BinaryNode(int data) : data(data)
+		BinaryNode(Student data) : data(data)
 		{
 		}
 
@@ -35,15 +47,15 @@ private:
 
 	BinaryNode *root{};
 
-	bool search(int target, BinaryNode *node)
+	bool search(Student target, BinaryNode *node)
 	{
 		if (!node)
 			return false;
 
-		if (target == node->data)
+		if (target.ID == node->data.ID)
 			return true;
 
-		if (target < node->data)
+		if (target.ID < node->data.ID)
 			return search(target, node->left);
 
 		return search(target, node->right);
@@ -88,16 +100,16 @@ private:
 		return node;
 	}
 
-	BinaryNode *insert_node(int target, BinaryNode *node)
+	BinaryNode *insert_node(Student target, BinaryNode *node)
 	{
-		if (target < node->data)
+		if (target.ID < node->data.ID)
 		{
 			if (!node->left)
 				node->left = new BinaryNode(target);
 			else
 				node->left = insert_node(target, node->left);
 		}
-		else if (target > node->data)
+		else if (target.ID > node->data.ID)
 		{
 			if (!node->right)
 				node->right = new BinaryNode(target);
@@ -115,15 +127,12 @@ private:
 		return cur;
 	}
 
-	BinaryNode *delete_node(int target, BinaryNode *node)
+	BinaryNode *delete_node(int id, BinaryNode *node)
 	{
-		if (!node)
-			return nullptr;
-
-		if (target < node->data)
-			node->left = delete_node(target, node->left);
-		else if (target > node->data)
-			node->right = delete_node(target, node->right);
+		if (id < node->data.ID)
+			node->left = delete_node(id, node->left);
+		else if (id > node->data.ID)
+			node->right = delete_node(id, node->right);
 		else
 		{
 			BinaryNode *tmp = node;
@@ -138,7 +147,7 @@ private:
 			{
 				BinaryNode *mn = min_node(node->right);
 				node->data = mn->data;
-				node->right = delete_node(node->data, node->right);
+				node->right = delete_node(node->data.ID, node->right);
 				tmp = nullptr;
 			}
 			if (tmp)
@@ -157,12 +166,12 @@ private:
 			return;
 
 		print_inorder(node->left);
-		cout << node->data << " ";
+		cout << node->data.ID << " " << node->data.name << " " << node->data.GPA << " " << node->data.department << endl;
 		print_inorder(node->right);
 	}
 
 public:
-	void insert_value(int target)
+	void insert_value(Student target)
 	{
 		if (!root)
 			root = new BinaryNode(target);
@@ -170,11 +179,11 @@ public:
 			root = insert_node(target, root);
 	}
 
-	void delete_value(int target)
+	void delete_value(int id)
 	{
 		if (root)
 		{
-			root = delete_node(target, root);
+			root = delete_node(id, root);
 		}
 	}
 	void print_inorder()
@@ -184,16 +193,20 @@ public:
 };
 int main()
 {
+	Student s1(5, "karim", 3.5, "CS");
+	Student s2(1, "Mostafa", 3.7, "CS");
+	Student s3(3, "Ibrahim", 3.7, "IS");
+	Student s4(11, "Eslam", 3.6, "IS");
+	Student s5(4, "Saiko", 1.2, "DS");
 	AVLTree av;
-	av.insert_value(1);
-	av.insert_value(2);
-	av.insert_value(5);
-	av.insert_value(3);
-	av.insert_value(4);
-	av.insert_value(9);
-	av.insert_value(7);
+	av.insert_value(s1);
+	av.insert_value(s2);
+	av.insert_value(s3);
+	av.insert_value(s4);
+	av.insert_value(s5);
+
 	//    av.print_inorder();
-	av.delete_value(5);
+	av.delete_value(3);
 	av.print_inorder();
 	return 0;
 }
