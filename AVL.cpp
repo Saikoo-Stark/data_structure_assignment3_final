@@ -30,7 +30,6 @@ void AVLTree::loadfile()
 		getline(fin, dept);
 
 		insert_value(Student(id, name, gpa, dept));
-		cardinality[dept]++;
 	}
 	fin.close();
 }
@@ -174,12 +173,13 @@ void AVLTree::print_inorder(AVLTree::BinaryNode *node)
 
 void AVLTree::insert_value(Student target)
 {
+	cardinality[target.department]++;
+	count++;
+
 	if (!root)
 		root = new AVLTree::BinaryNode(target);
 	else
 		root = insert_node(target, root);
-	cardinality[target.department]++;
-	count++;
 	cout << "std num " << count << " now dept is" << target.department << " " << cardinality[target.department] << endl;
 }
 

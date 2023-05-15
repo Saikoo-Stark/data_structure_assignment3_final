@@ -54,9 +54,13 @@ struct Student
 	Student *right{};
 
 	Student(int id, string name, double gpa, string department) : ID(id), name(name), GPA(gpa), department(department) {}
-    void printDetails() {
-        cout << "ID : " << ID << "\n" << "Name : " << name << "\n" << "GPA : " << GPA << "\n" << "Department : " << department << "\n";
-    }
+	void printDetails()
+	{
+		cout << "ID : " << ID << "\n"
+			 << "Name : " << name << "\n"
+			 << "GPA : " << GPA << "\n"
+			 << "Department : " << department << "\n";
+	}
 };
 
 class BST
@@ -145,7 +149,7 @@ private:
 
 	BinaryNode *balance(BinaryNode *node);
 
-    BinaryNode *search(int id, BinaryNode *node);
+	BinaryNode *search(int id, BinaryNode *node);
 
 	BinaryNode *insert_node(Student target, BinaryNode *node);
 
@@ -161,7 +165,7 @@ public:
 		loadfile();
 	}
 
-    void searchID(int id);
+	void searchID(int id);
 
 	void insert_value(Student target);
 
@@ -171,12 +175,11 @@ public:
 
 	void menu();
 
-    void add();
+	void add();
 
-    void deleteStudent();
+	void deleteStudent();
 
-    void search();
-
+	void search();
 };
 
 #endif
